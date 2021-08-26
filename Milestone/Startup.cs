@@ -24,6 +24,8 @@ namespace Milestone
     //5: Rec Owner - '0':자동녹화, '1':수동녹화
     //6: Camera Name
     //7: User Id
+    //8: rec_fr_dttm
+    //9: rec_to_dttm
 
     //1: Scale No. 배차번호
     //2: Rec Yn    - '0':녹화중, '1':녹화대기, '2':녹화재시작 확인, '3': 녹화시작실패, '4': 녹화종료실패
@@ -38,7 +40,7 @@ namespace Milestone
         string[] recRtn = new string[3];
         
         public byte[] LastJPEG { get; private set; } = null;
-        string MILESTONE_IP = "localhost";
+        string MILESTONE_IP = "10.10.10.136";
         string compRate = "50";
 
         RecorderCommandService.RecorderCommandService rcs = new RecorderCommandService.RecorderCommandService();
@@ -96,34 +98,6 @@ namespace Milestone
                 return "";
             }
         }
-
-        //public void oracleTest()
-        //{
-        //    //string connectString = "user id=dkds;password=dkds;"
-        //    //             + "data source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=211.231.137.169)(PORT=1521)))"
-        //    //             + "(CONNECT_DATA = (SERVICE_NAME = dkds)))";
-
-        //    string connectString = "user id=YK_IMS;password=wjdqhykims;"
-        //      + "data source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.10.12)(PORT=1527)))"
-        //                 + "(CONNECT_DATA = (SERVICE_NAME = YK_DEV)))";
-
-        //    //string connectString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.10.12)(PORT=1527))(CONNECT_DATA=(SID=YKDEV)));User Id=YK_IMS;Password=wjdqhykims;";
-        //    //string connectString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.10.12)(PORT=1527))(CONNECT_DATA=(SID=YKDEV)));User Id=YK_IMS;Password=wjdqhykims;";
-
-        //    using (OracleConnection conn = new OracleConnection(connectString))
-        //    {
-        //        OracleCommand cmd = new OracleCommand();
-        //        OracleDataReader odr = null;
-        //        conn.Open();
-        //        cmd.Connection = conn;
-
-        //        string query = "";
-        //        query += " select * from zm_ims_rec ";
-
-        //        cmd.CommandText = query;
-        //        odr = cmd.ExecuteReader();
-        //    }
-        //}
 
         public async Task<object> getCamera(object[] info)
         {
@@ -219,7 +193,7 @@ namespace Milestone
                 string call = "";
                 try
                 {
-                    string strFile = @"D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    string strFile = @"F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
                     FileInfo fi = new FileInfo(strFile);
                     if (fi.Exists)
                     {
@@ -227,27 +201,27 @@ namespace Milestone
                     }
 
                     call  = "-i ";
-                    call += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
+                    call += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
                     call += @"""";
                     call += " -c copy ";
-                    call += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    call += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
                     call += @"""";
 
                     //call = "ffmpeg -i ";
-                    //call += @"D:\IMS\Replay\" + info[4].ToString() + @"\";
+                    //call += @"F:\IMS\Replay\" + info[4].ToString() + @"\";
                     //call += @"""" + info[6].ToString();
                     //call += @"""\";
                     //call += info[4].ToString() + ".mkv";
                     //call += " -c copy ";
-                    //call += @"D:\IMS\Replay\" + info[4].ToString() + @"\";
+                    //call += @"F:\IMS\Replay\" + info[4].ToString() + @"\";
                     //call += @"""" + info[6].ToString();
                     //call += @"""\";
                     //call += info[4].ToString() + ".mp4";
 
 
-                    //call = @"-i D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
+                    //call = @"-i F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
                     //call += " -c copy ";
-                    //call += @"D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    //call += @"F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
 
                     ProcessStartInfo psiProcInfo = new ProcessStartInfo();
                     Process pro = new Process();
@@ -275,11 +249,196 @@ namespace Milestone
                     return e.Message + call;
                 }
             }
+            else if (info[2].ToString() == "Video")
+            {
+                string strFile = @"F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                string call = "";
+                try
+                {
+                    FileInfo fi = new FileInfo(strFile);
+                    if (fi.Exists)
+                    {
+                        return "0";
+                    }
+
+                    string path = System.IO.Directory.GetCurrentDirectory() + @"\Milestone\VideoOs.exe";
+                    //string path = System.IO.Directory.GetCurrentDirectory() + @"\VideoOs.exe";
+                    ProcessStartInfo psiProcInfo = new ProcessStartInfo();
+                    Process pro = new Process();
+                    psiProcInfo.FileName = path;
+                    psiProcInfo.Arguments = info[4].ToString() + "\a" + info[6].ToString().Replace(" ", "!SPACE!") + "\a" + info[8].ToString().Replace(" ", "!SPACE!") + "\a" + info[9].ToString().Replace(" ", "!SPACE!");
+                    psiProcInfo.UseShellExecute = false;
+                    psiProcInfo.CreateNoWindow = true;
+                    psiProcInfo.RedirectStandardOutput = true;
+                    psiProcInfo.RedirectStandardError = true;
+                    psiProcInfo.RedirectStandardInput = false;
+
+                    pro.StartInfo = psiProcInfo;
+                    pro.Start();
+
+                    pro.WaitForExit();
+                    string resultValue = pro.StandardOutput.ReadToEnd();
+                    pro.Close();
+
+
+                    //mp4변환
+                    call  = "-i ";
+                    call += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
+                    call += @"""";
+                    call += " -c copy ";
+                    call += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    call += @"""";
+
+                    ProcessStartInfo psiProcInfo2 = new ProcessStartInfo();
+                    Process pro2 = new Process();
+                    psiProcInfo2.FileName = "ffmpeg.exe";
+                    psiProcInfo2.Arguments = call;
+                    psiProcInfo2.UseShellExecute = false;
+                    psiProcInfo2.CreateNoWindow = true;
+                    psiProcInfo2.RedirectStandardOutput = false;
+                    psiProcInfo2.RedirectStandardError = true;
+                    psiProcInfo2.RedirectStandardInput = false;
+
+                    pro2.StartInfo = psiProcInfo2;
+                    pro2.Start();
+
+                    //pro.StandardInput.Close();
+
+                    pro2.WaitForExit();
+                    pro2.Close();
+
+                    //해당폴더의 mkv파일 삭제
+                    File.Delete(@"F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv");
+
+
+                    //HLS변환
+                    ProcessStartInfo psiProcInfo3 = new ProcessStartInfo();
+                    Process pro3 = new Process();
+                    string call2 = " -i ";
+                    call2 += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    call2 += @"""";
+                    call2 += " -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls ";
+                    call2 += @"""F:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".m3u8";
+                    call2 += @"""";
+
+                    psiProcInfo3.FileName = "ffmpeg.exe";
+                    psiProcInfo3.Arguments = call2;
+                    psiProcInfo3.UseShellExecute = false;
+                    psiProcInfo3.CreateNoWindow = true;
+                    psiProcInfo3.RedirectStandardOutput = false;
+                    psiProcInfo3.RedirectStandardError = false;
+                    psiProcInfo3.RedirectStandardInput = false;
+
+                    pro3.StartInfo = psiProcInfo3;
+                    pro3.Start();
+                    pro3.WaitForExit();
+                    pro3.Close();
+
+                    return "0";
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
+            }
+            else if (info[2].ToString() == "Video_test")
+            {
+                try
+                {
+                    //string strFile = @"D:\IMS\Replay\" + info[4].ToString() + @"\" + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    //FileInfo fi = new FileInfo(strFile);
+                    //if (fi.Exists)
+                    //{
+                    //    return "0";
+                    //}
+
+                    ////string path = System.IO.Directory.GetCurrentDirectory() + @"\server\Milestone\VideoOs.exe";
+                    //string path = System.IO.Directory.GetCurrentDirectory() + @"\VideoOs.exe";
+                    //ProcessStartInfo psiProcInfo = new ProcessStartInfo();
+                    //Process pro = new Process();
+                    //psiProcInfo.FileName = path;
+                    //psiProcInfo.Arguments = info[4].ToString() + "\a" + info[6].ToString().Replace(" ", "!SPACE!") + "\a" + info[8].ToString().Replace(" ", "!SPACE!") + "\a" + info[9].ToString().Replace(" ", "!SPACE!");
+                    //psiProcInfo.UseShellExecute = false;
+                    //psiProcInfo.CreateNoWindow = true;
+                    //psiProcInfo.RedirectStandardOutput = true;
+                    //psiProcInfo.RedirectStandardError = true;
+                    //psiProcInfo.RedirectStandardInput = false;
+
+                    //pro.StartInfo = psiProcInfo;
+                    //pro.Start();
+
+                    //pro.WaitForExit();
+                    //string resultValue = pro.StandardOutput.ReadToEnd();
+                    //pro.Close();
+
+                    ////mp4변환
+                    //string call = "-i ";
+                    //call += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
+                    //call += @"""";
+                    //call += " -c copy ";
+                    //call += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    //call += @"""";
+
+                    //ProcessStartInfo psiProcInfo2 = new ProcessStartInfo();
+                    //Process pro2 = new Process();
+                    //psiProcInfo2.FileName = "ffmpeg.exe";
+                    //psiProcInfo2.Arguments = call;
+                    //psiProcInfo2.UseShellExecute = false;
+                    //psiProcInfo2.CreateNoWindow = true;
+                    //psiProcInfo2.RedirectStandardOutput = false;
+                    //psiProcInfo2.RedirectStandardError = true;
+                    //psiProcInfo2.RedirectStandardInput = false;
+
+                    //pro2.StartInfo = psiProcInfo2;
+                    //pro2.Start();
+                    
+                    //pro2.WaitForExit();
+                    //pro2.Close();
+
+                    //HLS변환
+                    ProcessStartInfo psiProcInfo3 = new ProcessStartInfo();
+                    Process pro3 = new Process();
+                    //string call2 = " -y -an -i ";
+                    //call2 += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    //call2 += " -profile:v baseline -level 3.0 -s 1280x1024 -start_number 0 -hls_time 2 -hls_list_size 0 -f hls ";
+                    //call2 += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".m3u8";
+
+                    string call2 = " -i ";
+                    call2 += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mp4";
+                    call2 += @"""";
+                    call2 += " -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls ";
+                    call2 += @"""D:\IMS\Replay\" + info[4].ToString() + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".m3u8";
+                    call2 += @"""";
+
+
+
+                    //ffmpeg -i "D:\\IMS\\Replay\\202107140004\\TRUEN Co., Ltd. TN-B336W12C (10.10.136.128) - 카메라 1\\202107140004.mp4" -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls "D:\\IMS\\Replay\\202107140004\\TRUEN Co., Ltd. TN-B336W12C (10.10.136.128) - 카메라 1\\202107140004.m3u8"
+
+                    psiProcInfo3.FileName = "ffmpeg.exe";
+                    psiProcInfo3.Arguments = call2;
+                    psiProcInfo3.UseShellExecute = false;
+                    psiProcInfo3.CreateNoWindow = true;
+                    psiProcInfo3.RedirectStandardOutput = false;
+                    psiProcInfo3.RedirectStandardError = false;
+                    psiProcInfo3.RedirectStandardInput = false;
+
+                    pro3.StartInfo = psiProcInfo3;
+                    pro3.Start();
+                    pro3.WaitForExit();
+                    pro3.Close();
+
+                    return "0";
+                }
+                catch(Exception e)
+                {
+                    return e.Message;
+                }
+            }
             else if(info[2].ToString() == "Replay")
             {
                 try
                 {
-                    string strFile = @"D:\IMS\Replay\" + info[4].ToString() + @"\" + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
+                    string strFile = @"F:\IMS\Replay\" + info[4].ToString() + @"\" + @"\" + info[6].ToString() + @"\" + info[4].ToString() + ".mkv";
                     FileInfo fi = new FileInfo(strFile);
                     if (fi.Exists)
                     {
@@ -313,82 +472,6 @@ namespace Milestone
                 {
                     return e.Message;
                 }
-            }
-            //else if (info[2].ToString() == "IsManualRecording")
-            //{
-            //    Guid[] arrGuid = new Guid[] { new Guid(info[1].ToString()) };
-
-            //    RecorderCommandService.ManualRecordingInfo[] result = new RecorderCommandService.ManualRecordingInfo[1];
-
-            //    result = rcs.IsManualRecording(info[0].ToString(), arrGuid);
-
-            //    return rtn;
-            //}
-            else if (info[2].ToString() == "StartManualRecording")
-            {
-                Guid[] arrGuid = new Guid[] { new Guid(info[1].ToString()) };
-                RecorderCommandService.ManualRecordingInfo[] recYn = new RecorderCommandService.ManualRecordingInfo[1];
-                recYn = rcs.IsManualRecording(info[0].ToString(), arrGuid);
-                
-                //1. 녹화중.
-                if (recYn[0].IsManualRecording)
-                {
-                    ////2. 새로운 녹화명령이 자동명령이면 기존녹화 중지
-                    //if (info[5].ToString() == "0")
-                    //{
-                    //    RecorderCommandService.ManualRecordingResult[] stopRec = new RecorderCommandService.ManualRecordingResult[1];
-                    //    stopRec = rcs.StopManualRecording(info[0].ToString(), arrGuid);
-
-                    //    if (stopRec[0].Message != "Success")
-                    //    {
-                    //        recRtn[1] = "4";
-                    //        return recRtn;
-                    //    }
-                    //}
-                    ////3. 새로운 녹화명령이 수동명령이면 녹화재시작 확인창 표시(React)
-                    //else 
-
-                    //3. 새로운 녹화명령이 수동명령이면 녹화재시작 확인창 표시(React)
-                    if (info[5].ToString() == "1")
-                    {
-                        recRtn[1] = "2";
-                        return recRtn;
-                    }
-                }
-                else
-                {
-                    //쓰레드 시작
-                    Thread recThread = new Thread(Status);
-                    recThread.Start();
-                }
-
-                RecorderCommandService.ManualRecordingResult[] result = new RecorderCommandService.ManualRecordingResult[1];
-                result = rcs.StartManualRecording(info[0].ToString(), arrGuid);
-
-                recRtn[0] = info[4].ToString();
-                recRtn[1] = "0";
-
-                return recRtn;
-            }
-            else if (info[2].ToString() == "StopManualRecording")
-            {
-                Guid[] arrGuid = new Guid[] { new Guid(info[1].ToString()) };
-                RecorderCommandService.ManualRecordingInfo[] recYn = new RecorderCommandService.ManualRecordingInfo[1];
-                recYn = rcs.IsManualRecording(info[0].ToString(), arrGuid);
-
-                if (recYn[0].IsManualRecording)
-                {
-                    RecorderCommandService.ManualRecordingResult[] stopRec = new RecorderCommandService.ManualRecordingResult[1];
-                    stopRec = rcs.StopManualRecording(info[0].ToString(), arrGuid);
-                    if (stopRec[0].Message != "Success")
-                    {
-                        recRtn[1] = "4";
-                        return recRtn;
-                    }
-                }
-
-                recRtn[1] = "1";
-                return recRtn;
             }
             else if (info[2].ToString() == "Status")
             {
